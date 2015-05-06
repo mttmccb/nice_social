@@ -146,7 +146,7 @@ function sendPost() {
             saveData('msgTitle', 'Post Too Long');
             saveData('msgText', 'This Post Is a Bit Too Long. Please Keep It Within 256 Characters.');
         }
-        if ( constructDialog('okbox') ) { toggleClassIfExist('okbox','hide','show'); }
+        if ( constructDialog('okbox') ) { toggleClassIfExists('okbox','hide','show'); }
     }
 }
 function writePost( text, in_reply_to ) {
@@ -182,7 +182,7 @@ function writePost( text, in_reply_to ) {
                 } else {
                     saveData('msgText', 'There Was a Problem Sending Your Post to ADN.');
                 }
-                if ( constructDialog('okbox') ) { toggleClassIfExist('okbox','hide','show'); }
+                if ( constructDialog('okbox') ) { toggleClassIfExists('okbox','hide','show'); }
             },
             dataType: "json"
         });
@@ -215,7 +215,7 @@ function getUserProfile( user_id ) {
     params['include_html'] = 1;
     params['count'] = 20;
     if ( access_token !== false ) { params['access_token'] = access_token; }
-    toggleClassIfExist('dialog','hide','show');
+    toggleClassIfExists('dialog','hide','show');
     showWaitState('usr-info', 'Accessing App.Net');
 
     $.ajax({
@@ -273,7 +273,7 @@ function parseUserProfile( data ) {
                     '</div>';
         }
         document.getElementById( 'user_posts' ).innerHTML = html;
-        toggleClassIfExist('dialog','hide','show');
+        toggleClassIfExists('dialog','hide','show');
     }
 }
 function getTimeline() {
@@ -522,7 +522,6 @@ function parseText( post ) {
     var html = post.html.replaceAll('<a href=', '<a target="_blank" href=', '') + ' ',
         name = '',
         cStr = ' style="color: #333; font-weight: bold; cursor: pointer;"';
-
     if ( post.entities.mentions.length > 0 ) {
         for ( var i = 0; i < post.entities.mentions.length; i++ ) {
             name = '>@' + post.entities.mentions[i].name + '<';
@@ -884,7 +883,7 @@ function doShowChan( chan_id ) {
     if ( chan_id === '' || chan_id === undefined ) {
         $('#conversation').removeClass('show').addClass('hide');
     } else {
-        toggleClassIfExist('conversation','hide','show');
+        toggleClassIfExists('conversation','hide','show');
         if ( constructDialog('conversation') ) {
             showWaitState('chat_posts', 'Collecting Private Conversation');
             getChannelMessages(chan_id);

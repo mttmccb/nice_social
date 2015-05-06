@@ -13,7 +13,7 @@ Want to see this code in action? Drop it in at directory on your computer or hea
 
 ###Usage
 
-Using this code really couldn't be easier. Put the files somewhere. Access the `index.html` file. Everything is done through JavaScript and jQuery.
+Using this code really couldn't be easier. Put the files somewhere. Access the `index.html` file. Everything is done through JavaScript and jQuery.
 
 ###Customisation
 

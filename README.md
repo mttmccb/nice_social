@@ -33,7 +33,7 @@ On this third screen you will also see a place for "Redirect URIs". You will nee
 
 Now, copy the file `config.sample.js` to `config.js` and edit it.
 
-Replace `[YOUR_API_TOKEN]` with the API Token granted by App.net, and `[YOUR_REDIRECT_URI]` with the URI where `index.html` can be accessed. For example:
+Replace `[YOUR_API_TOKEN]` with the API Token (Client ID) granted by App.net, and `[YOUR_REDIRECT_URI]` with the URI where `index.html` can be accessed. For example:
 
     `apiToken: 'abcdefghijklmnopqrstuvwxyz0123456789',`
     `redirect: 'http://my.nice.app', //You can use your 'file:///' URI here, too`

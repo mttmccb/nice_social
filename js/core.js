@@ -1458,7 +1458,7 @@ function showHideActions( post_id, tl ) {
         for ( var i = 0; i <= tls.length; i++ ) {
             div = '#' + post_id + '-rsp-' + tls[i];
             if ($(div).length) {
-                toggleClassIfExists(div,'show','hide');
+                toggleClassIfExists(post_id + '-rsp-' + tls[i],'show','hide');
             }
         }
     } else {

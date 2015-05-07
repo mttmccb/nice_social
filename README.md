@@ -56,6 +56,8 @@ None of your personal data is shared with any of my servers. Your data is none o
 The list below is not very long. Let's make it impressive! Help Nice.Social by contributing some code, bug reports, and/or chocolate chip cookies and add your name below.
 
 * [@matigo - Jason F. Irwin](https://alpha.app.net/matigo)
+* [@lasar - Lasar Liepins](https://alpha.app.net/lasar)
+* [@mttmccb - Matt McCabe](https://alpha.app.net/mttmccb)
 
 ###License
 

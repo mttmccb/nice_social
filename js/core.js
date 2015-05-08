@@ -89,6 +89,9 @@ function getADNAccessToken() {
 }
 function prepApp() {
     setSplashMessage('Getting Nice Ready ...');
+    document.getElementById("site-name").innerHTML = niceConfig.sitename;
+    document.title = niceConfig.sitename.replace(/<(?:.|\n)*?>/gm, '');
+
     if ( !readStorage('show_live_timestamps') ) { saveStorage( 'show_live_timestamps', 'Y' ); }
     if ( !readStorage('refresh_rate') ) { saveStorage('refresh_rate', 15); }
     if ( !readStorage('max_post_age') ) { saveStorage('max_post_age', 4); }
@@ -473,6 +476,7 @@ function parseItems( data ) {
 
                 avatarClass = 'avatar-round';
                 is_mention = isMention( data[i] );
+                parseAccountNames( data[i].user );
                 post_client = data[i].source.name || 'unknown';
                 if ( account_age <= 7 ) { avatarClass = 'avatar-round recent-acct'; }
                 if ( account_age <= 1 ) { avatarClass = 'avatar-round new-acct'; }
@@ -952,14 +956,13 @@ function parseChannel( data ) {
 }
 function parseAccountNames( data ) {
     if ( data ) {
-        var u_score = 0;
-        for ( var i = 0; i < data.length; i++ ) {
-            u_score = (( data[i].follows_you ) ? 2 : 0) + (( data[i].is_follower ) ? 2 : 0) + 1;
-            window.users[data[i].id] = { avatar_url: data[i].avatar_image.url,
-                                         name: data[i].name,
-                                         username: data[i].username,
-                                         score: u_score
-                                        }
+        for ( var i = 0; i < ((data.length === undefined) ? 1 : data.length); i++ ) {
+            var ds = (data.length === undefined) ? data : data[i];
+            window.users[ ds.id ] = { avatar_url: ds.avatar_image.url,
+                                      name: ds.name,
+                                      username: ds.username,
+                                      score: (( ds.follows_you ) ? 2 : 0) + (( ds.is_follower ) ? 2 : 0) + 1
+                                     }
         }
     }
 }
@@ -1380,6 +1383,7 @@ function parseConversation( data, post_id ) {
             post_by = data[i].user.username;
             post_reposted = data[i].you_reposted || false;
             post_starred = data[i].you_starred || false;
+            parseAccountNames( data[i].user );
             post_mentions = [];
             is_mention = isMention( data[i] );
 

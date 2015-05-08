@@ -35,8 +35,7 @@ function doReply( post_id ) {
     doPostOrAuth();
 }
 function testADNAccessToken() {
-    var params = new Object();
-    params['access_token'] = readStorage('access_token');
+    var params = { access_token: readStorage('access_token') };
     setSplashMessage('Testing App.Net Token');
 
     $.ajax({
@@ -193,14 +192,16 @@ function buildJSONPost( text, in_reply_to ) {
     var rVal = false;
 
     if ( access_token !== false ) {
-        var params = new Object();
-        params['access_token'] = access_token;
-        params['include_post_annoations'] = 1;
-        params['text'] = text;
-        params['entities'] = new Object();
-        params['entities']['parse_markdown_links'] = true;
-        params['entities']['parse_links'] = true;
-        if ( parseInt(in_reply_to) > 0 ) { params['reply_to'] = in_reply_to; }
+        var params = {
+            access_token: access_token,
+            include_post_annoations: 1,
+            text: text,
+            entities: {
+                parse_markdown_links: true,
+                parse_links: true             
+            }
+        };
+        if ( parseInt(in_reply_to) > 0 ) { params.reply_to = in_reply_to; }
         rVal = JSON.stringify(params);
     }
     return rVal;
@@ -208,13 +209,14 @@ function buildJSONPost( text, in_reply_to ) {
 function getUserProfile( user_id ) {
     if ( parseInt(user_id) <= 0 ) { return false; }
     var access_token = readStorage('access_token');
-    var params = new Object();
-    params['include_deleted'] = 0;
-    params['include_machine'] = 0;
-    params['include_muted'] = 1;
-    params['include_html'] = 1;
-    params['count'] = 20;
-    if ( access_token !== false ) { params['access_token'] = access_token; }
+    var params = {
+        include_deleted: 0,
+        include_machine: 0,
+        include_muted: 1,
+        include_html: 1,
+        count: 20        
+    };
+    if ( access_token !== false ) { params.access_token = access_token; }
     toggleClassIfExists('dialog','hide','show');
     showWaitState('usr-info', 'Accessing App.Net');
 
@@ -281,15 +283,15 @@ function getTimeline() {
 
     if ( access_token !== false ) {
         setSplashMessage('Getting Your Timeline');
-        var params = new Object();
-        params['include_directed_posts'] = 1;
-        params['include_annotations'] = 1;
-        params['include_deleted'] = 0;
-        params['include_machine'] = 0;
-        params['access_token'] = access_token;
-        params['include_html'] = 1;
-        params['count'] = 200;
-
+        var params = {
+            include_directed_posts: 1,
+            include_annotations: 1,
+            include_deleted: 0,
+            include_machine: 0,
+            access_token: access_token,
+            include_html: 1,
+            count: 200
+        };
         $.ajax({
             url: window.apiURL + '/posts/stream',
             crossDomain: true,
@@ -306,14 +308,14 @@ function getMentions() {
     
     if ( access_token !== false ) {
         setSplashMessage('Getting Your Mentions');
-        var params = new Object();
-        params['include_annotations'] = 1;
-        params['include_deleted'] = 0;
-        params['include_machine'] = 0;
-        params['access_token'] = access_token;
-        params['include_html'] = 1;
-        params['count'] = 50;
-    
+        var params = {
+            include_annotations: 1,
+            include_deleted: 0,
+            include_machine: 0,
+            access_token: access_token,
+            include_html: 1,
+            count: 50
+        }; 
         $.ajax({
             url: window.apiURL + '/users/me/mentions',
             crossDomain: true,
@@ -343,15 +345,16 @@ function getGlobalRecents( since_id ) {
     if ( recents >= 15 ) { return false; }
 
     var access_token = readStorage('access_token');
-    var params = new Object();
-    params['include_annotations'] = 1;
-    params['include_deleted'] = 0;
-    params['include_machine'] = 0;
-    params['include_html'] = 1;
-    params['count'] = 200;
+    var params = {
+        include_annotations: 1,
+        include_deleted: 0,
+        include_machine: 0,
+        include_html: 1,
+        count: 200
+    }
 
-    if ( access_token !== false ) { params['access_token'] = access_token; }
-    if ( since_id > 0 ) { params['before_id'] = since_id; }
+    if ( access_token !== false ) { params.access_token = access_token; }
+    if ( since_id > 0 ) { params.before_id = since_id; }
     showHideActivity(true);
 
     $.ajax({
@@ -378,14 +381,15 @@ function getGlobalItems() {
     if ( readData('adn_action') === 'Y' ) { return false; }
 
     var access_token = readStorage('access_token');
-    var params = new Object();
-    params['include_annotations'] = 1;
-    params['include_deleted'] = 0;
-    params['include_machine'] = 0;
-    params['include_html'] = 1;
-    params['since_id'] = readData( 'since' );
-    params['count'] = 200;
-    if ( access_token !== false ) { params['access_token'] = access_token; }
+    var params = {
+        include_annotations: 1,
+        include_deleted: 0,
+        include_machine: 0,
+        include_html: 1,
+        since_id: readData( 'since' ),
+        count: 200        
+    };
+    if ( access_token !== false ) { params.access_token = access_token; }
     saveData('adn_action', 'Y');
     showHideActivity(true);
 
@@ -896,15 +900,15 @@ function getChannelMessages( chan_id ) {
 
     if ( access_token !== false ) {
         showWaitState('chat_posts', 'Accessing App.Net');
-        var params = new Object();
-        params['include_annotations'] = 1;
-        params['include_deleted'] = 0;
-        params['include_machine'] = 0;
-        params['access_token'] = access_token;
-        params['include_html'] = 1;
-        params['include_read'] = 1;
-        params['count'] = 200;
-
+        var params = {
+            include_annotations: 1,
+            include_deleted: 0,
+            include_machine: 0,
+            access_token: access_token,
+            include_html: 1,
+            include_read: 1,
+            count: 200           
+        };
         $.ajax({
             url: window.apiURL + '/channels/' + chan_id + '/messages',
             data: params,
@@ -1068,9 +1072,10 @@ function getAccountNames( ids ) {
             id_list += ids[i];
         }
 
-        var params = new Object();
-        params['access_token'] = access_token;
-        params['ids'] = id_list;
+        var params = {
+            access_token: access_token,
+            ids: id_list 
+        };
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 xhr.setRequestHeader("Authorization", "Bearer " + access_token);
@@ -1116,8 +1121,7 @@ function updateTimestamps() {
 }
 function collectRankSummary() {
     setSplashMessage('Collecting NiceRank Scores');
-    var params = new Object();
-    params['nicerank'] = 0.1;
+    var params = { nicerank: 0.1 };
     showHideActivity(true);
 
     $.ajax({
@@ -1149,8 +1153,7 @@ function doDelete( post_id ) {
     var access_token = readStorage('access_token');
 
     if ( access_token !== false ) {
-        var params = new Object();
-        params['access_token'] = access_token;
+        var params = { access_token: access_token };
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 xhr.setRequestHeader("Authorization", "Bearer " + access_token);
@@ -1182,8 +1185,7 @@ function doRepost( post_id ) {
     var action_type = ( window.posts[post_id].reposted ) ? 'DELETE' : 'POST';
 
     if ( access_token !== false ) {
-        var params = new Object();
-        params['access_token'] = access_token;
+        var params = { access_token: access_token };
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 xhr.setRequestHeader("Authorization", "Bearer " + access_token);
@@ -1222,8 +1224,7 @@ function doStar( post_id ) {
     var action_type = ( window.posts[post_id].starred ) ? 'DELETE' : 'POST';
 
     if ( access_token !== false ) {
-        var params = new Object();
-        params['access_token'] = access_token;
+        var params = { access_token: access_token };
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 xhr.setRequestHeader("Authorization", "Bearer " + access_token);
@@ -1269,8 +1270,7 @@ function doFollow( user_id, unfollow ) {
     if ( parseInt(user_id) <= 0 ) { return false; }
 
     if ( access_token !== false ) {
-        var params = new Object();
-        params['access_token'] = access_token;
+        var params = { access_token: access_token };
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 xhr.setRequestHeader("Authorization", "Bearer " + access_token);
@@ -1325,14 +1325,14 @@ function getConversation( post_id ) {
 
     if ( access_token !== false ) {
         showWaitState('chat_posts', 'Accessing App.Net');
-        var params = new Object();
-        params['access_token'] = access_token;
-        params['include_annotations'] = 1;
-        params['include_deleted'] = 0;
-        params['include_muted'] = 1;
-        params['include_html'] = 1;
-        params['count'] = 200;
-
+        var params = {
+            access_token: access_token,
+            include_annotations: 1,
+            include_deleted: 0,
+            include_muted: 1,
+            include_html: 1,
+            count: 200
+        };
         $.ajax({
             url: window.apiURL + '/posts/' + post_id + '/replies',
             crossDomain: true,
@@ -1458,7 +1458,7 @@ function showHideActions( post_id, tl ) {
         for ( var i = 0; i <= tls.length; i++ ) {
             div = '#' + post_id + '-rsp-' + tls[i];
             if ($(div).length) {
-                toggleClassIfExists(div,'show','hide');
+                toggleClassIfExists(post_id + '-rsp-' + tls[i],'show','hide');
             }
         }
     } else {
@@ -1639,18 +1639,18 @@ function getPMSummary( before_id ) {
     var access_token = readStorage('access_token');
     before_id = ( before_id === undefined || before_id === NaN ) ? 0 : before_id;
     if ( access_token !== false ) {
-        var params = new Object();
-        params['access_token'] = access_token;
-        params['include_message_annotations'] = 1;
-        params['include_recent_message'] = 1;
-        params['include_annotations'] = 1;
-        params['include_inactive'] = 1;
-        params['include_marker'] = 1;
-        params['include_read'] = 1;
-        params['channel_types'] = 'net.app.core.pm';
-        if ( before_id > 0 ) { params['before_id'] = before_id; }
-        params['count'] = 100;
-
+        var params = {
+            access_token: access_token,
+            include_message_annotations: 1,
+            include_recent_message: 1,
+            include_annotations: 1,
+            include_inactive: 1,
+            include_marker: 1,
+            include_read: 1,
+            channel_types: 'net.app.core.pm',
+            count: 100
+        };
+        if ( before_id > 0 ) { params.before_id = before_id; }
         $.ajax({
             url: window.apiURL + '/channels',
             crossDomain: true,
@@ -1806,13 +1806,13 @@ function getHashDetails( name ) {
 
     if ( access_token !== false ) {
         showWaitState('hash_posts', 'Accessing App.Net');
-        var params = new Object();
-        params['access_token'] = access_token;
-        params['include_annotations'] = 1;
-        params['include_html'] = 1;
-        params['hashtags'] = name;
-        params['count'] = 200;
-
+        var params = {
+            access_token: access_token,
+            include_annotations: 1,
+            include_html: 1,
+            hashtags: name,
+            count: 200            
+        };        
         $.ajax({
             url: window.apiURL + '/posts/search',
             crossDomain: true,

@@ -91,6 +91,7 @@ function prepApp() {
     setSplashMessage('Getting Nice Ready ...');
     document.getElementById("site-name").innerHTML = niceConfig.sitename;
     document.title = niceConfig.sitename.replace(/<(?:.|\n)*?>/gm, '');
+    var seconds = new Date().getTime() / 1000;
 
     if ( !readStorage('show_live_timestamps') ) { saveStorage( 'show_live_timestamps', 'Y' ); }
     if ( !readStorage('refresh_rate') ) { saveStorage('refresh_rate', 15); }
@@ -98,6 +99,7 @@ function prepApp() {
     if ( !readStorage('global_show') ) { saveStorage('global_show', 'e'); }
     if ( !readStorage('hide_images') ) { saveStorage('hide_images', 'N'); }
     if ( !readStorage('font_size') ) { saveStorage('font_size', 14); }
+    if ( !readData('refresh_last') ) { saveData('refresh_last', seconds); }
     if ( !readData('post_length') ) { saveData('post_length', 256); }
     if ( !readData('min_rank') ) { saveData('min_rank', 2.1); }
     if ( !readData('limit') ) { saveData('limit', 500); }
@@ -332,12 +334,11 @@ function getMentions() {
 }
 function canRefreshGlobal() {
     var rrate = parseInt(readStorage('refresh_rate')),
-        rsecs = parseInt(readData('refresh_secs'));
+        rlast = parseInt(readData('refresh_last'));
+    var seconds = new Date().getTime() / 1000;
     var rVal = false;
-    if ( rsecs === undefined || isNaN(rsecs) ) { rsecs = 0; }
-    rsecs++;
-    if ( rsecs >= rrate ) { rsecs = '0'; rVal = true; }
-    saveData('refresh_secs', rsecs);
+    if ( rlast === undefined || isNaN(rlast) ) { rlast = 0; }
+    if ( (seconds-rlast) >= rrate ) { saveData('refresh_last', seconds); rVal = true; }
     return rVal;
 }
 function getGlobalRecents( since_id ) {
@@ -345,7 +346,7 @@ function getGlobalRecents( since_id ) {
     var recents = parseInt(readData('recents'));
     if ( recents === undefined || isNaN(recents) ) { recents = 0; }
     saveData('recents', (recents + 1) );
-    if ( recents >= 15 ) { return false; }
+    if ( recents >= 5 ) { return false; }
 
     var access_token = readStorage('access_token');
     var params = {

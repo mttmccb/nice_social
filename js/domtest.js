@@ -32,3 +32,4 @@ function hasClass(element, cls) {
     return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
 }
 exports.hasClass = hasClass;
+//# sourceMappingURL=domtest.js.map

@@ -1,0 +1,19 @@
+{
+  "name": "nice_social",
+  "version": "1.0.0",
+  "description": "An Open-Source Web Client for App.Net",
+  "main": "config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mttmccb/nice_social.git"
+  },
+  "keywords": [
+    "app.net"
+  ],
+  "author": "Jason F. Irwin <jason@j2fi.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mttmccb/nice_social/issues"
+  },
+  "homepage": "https://github.com/mttmccb/nice_social#readme"
+}

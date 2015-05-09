@@ -11,6 +11,41 @@ jQuery.fn.scrollTo = function(elem, speed) {
     }, speed === undefined ? 1000 : speed); 
     return this; 
 };
+function continueLoadProcess() {
+    if ( prepApp() ) {
+        window.setInterval(function(){
+            getGlobalItems();
+            redrawList(); 
+        }, 1000);
+        window.setInterval(function(){ collectRankSummary(); }, 60*60*1000);
+        window.setInterval(function(){ updateTimestamps(); }, 15000);
+
+        getPMSummary();
+        showTimelines();
+        collectRankSummary();
+        getGlobalRecents();
+    }
+}
+function loadConfigFile() {
+    if ( readConfigFile( 'config.json' ) ) { return true; } else { return readConfigFile( 'config.sample.json' ); }
+}
+function readConfigFile( filename ) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", filename, true);
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.onreadystatechange = function() {
+        if( xhr.readyState == 4 && xhr.status == 200 ) {
+            var data = JSON.parse( xhr.responseText );
+            if ( data ) {
+                for ( var item in data ) { window[item] = data[item]; }
+                continueLoadProcess();
+                setWindowConstraints();
+            }
+        }
+        return false;
+    }
+    xhr.send();
+}
 function setSplashMessage( msg ) {
     if ( msg === undefined || msg === '' ) {
         toggleClassIfExists('splash','show','hide');
@@ -89,8 +124,8 @@ function getADNAccessToken() {
 }
 function prepApp() {
     setSplashMessage('Getting Nice Ready ...');
-    document.getElementById("site-name").innerHTML = niceConfig.sitename;
-    document.title = niceConfig.sitename.replace(/<(?:.|\n)*?>/gm, '');
+    document.getElementById("site-name").innerHTML = window.sitename;
+    document.title = window.sitename.replace(/<(?:.|\n)*?>/gm, '');
     var seconds = new Date().getTime() / 1000;
 
     if ( !readStorage('show_live_timestamps') ) { saveStorage( 'show_live_timestamps', 'Y' ); }

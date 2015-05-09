@@ -17,7 +17,7 @@ Using this code really couldn't be easier. Put the files somewhere. Access the `
 
 ###Customisation
 
-In order to use this website to interact with the App.Net API, you will need an Application Client ID and a web-safe URI. You can [get a Client ID for free with your App.Net account](https://account.app.net/developer/apps/) regardless of whether you have a free, paid, or developer account. Don't worry about the exclamation mark message unless you do not see the "Create App" button.
+In order to use this website to interact with the App.Net API, you will need to enter an Application Client ID and a web-safe URI into a `config.json` file. Copy the `config.sample.json` file to `config.json` and customise it to your heart's content. You can [get a Client ID for free with your App.Net account](https://account.app.net/developer/apps/) regardless of whether you have a free, paid, or developer account. Don't worry about the exclamation mark message unless you do not see the "Create App" button.
 
 ![Create Application](https://nice.social/themes/mono/img/1_create_app.jpg)
 
@@ -31,9 +31,9 @@ The third and final screen will give you the necessary `client_id` to interact w
 
 On this third screen you will also see a place for "Redirect URIs". You will need a good URI in this area before you can log in to App.net. If you are running the web application from a web server, enter the website address here. If you're running it on your computer, you will need to run Apache or some other web server software, and supply the URI. It might look something like `http://localhost:8080/` depending on how the software is configured.
 
-If you're running the tool from a directory, you will only be able to watch the Filtered Global timeline scroll by. Although we can enter a `file:///` URI into the App.Net OAuth2 fields (example: `file:///Users/jason/Git/nice_social/index.html`), an external website cannot redirect a browser to an internal HTML file stored locally.
+If you're running the tool from a directory, you will only be able to watch the Filtered Global timeline scroll by. Although we can enter a `file:///` URI into the App.Net OAuth2 fields (example: `file:///Users/jason/Git/nice_social/index.html`), an external website cannot redirect a browser to an HTML file stored on your computer.
 
-With that out of the way, you can copy or rename the `config.sample.js` file to `config.js` and edit it to have your Client ID and redirect URI.
+With that out of the way, if you haven't already, you can copy or rename the `config.sample.json` file to `config.json` and edit it to have your Client ID and redirect URI.
 
 Replace `[YOUR_API_TOKEN]` with the API Token (Client ID) granted by App.net, and `[YOUR_REDIRECT_URI]` with the URI where `index.html` can be accessed. For example:
 

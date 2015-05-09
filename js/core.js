@@ -383,7 +383,7 @@ function getGlobalRecents( since_id ) {
     var recents = parseInt(readData('recents'));
     if ( recents === undefined || isNaN(recents) ) { recents = 0; }
     saveData('recents', (recents + 1) );
-    if ( recents >= 5 ) { return false; }
+    if ( recents >= 10 ) { return false; }
 
     var access_token = readStorage('access_token');
     var params = {
@@ -462,12 +462,10 @@ function parseItems( data ) {
         data = sortByKey(data, "id");
         saveData('adn_action', 'N');
 
-        var avatarClass = '',
-            html = '';
+        var html = '';
         var is_mention = false,
             followed = false;
         var account_rank = 0,
-            account_age = 999,
             show_time = readStorage('show_live_timestamps'),
             min_rank = parseInt( readData('min_rank') );
         var post_mentions = [],
@@ -491,7 +489,6 @@ function parseItems( data ) {
             write_post = true;
 
             if ( (account_rank >= min_rank && is_human == 'Y') || (data[i].user.id === my_id) || followed ) {
-                account_age = Math.floor(( new Date() - Date.parse(data[i].user.created_at) ) / 86400000);
                 post_by = data[i].user.username;
                 post_reposted = data[i].you_reposted || false;
                 post_starred = data[i].you_starred || false;
@@ -512,30 +509,10 @@ function parseItems( data ) {
                     }
                 }
 
-                avatarClass = 'avatar-round';
-                is_mention = isMention( data[i] );
                 parseAccountNames( data[i].user );
                 post_client = data[i].source.name || 'unknown';
-                if ( account_age <= 7 ) { avatarClass = 'avatar-round recent-acct'; }
-                if ( account_age <= 1 ) { avatarClass = 'avatar-round new-acct'; }
-                if ( is_mention ) { avatarClass = 'avatar-round mention'; }
-                post_time = ( show_time === 'Y' ) ? humanized_time_span(data[i].created_at) : '<em>more...</em>';
-                html =  '<div id="' + data[i].id + '[TL]" name="' + data[i].id + '" class="post-item">' +
-                            '<div id="' + data[i].id + '-po" class="post-avatar">' +
-                                '<img class="' + avatarClass + '"' +
-                                    ' onClick="doShowUser(' + data[i].user.id + ');"' +
-                                    ' src="' + data[i].user.avatar_image.url + '">' +
-                            '</div>' +
-                            '<div id="' + data[i].id + '-dtl" class="post-content" onClick="showHideActions(' + data[i].id + ', \'[TL]\');">' +
-                                '<h5 class="post-name"><span>' + data[i].user.username + '</span></h5>' +
-                                parseText( data[i] ) +
-                                '<p class="post-time">' +
-                                    '<em id="' + data[i].id + '-time[TL]" name="' + data[i].id + '-time">' + post_time + '</em>' +
-                                '</p>' +
-                            '</div>' +
-                            buildRespondBar( data[i] ) +
-                            parseEmbedded( data[i] ) +
-                        '</div>';
+                is_mention = isMention( data[i] );
+                html = buildHTMLSection( data[i] );
                 if ( write_post ) {
                     addPostItem( data[i].id, data[i].created_at, html, is_mention, followed, post_by,
                                  post_mentions, post_reposted, post_starred, false, post_client );
@@ -545,6 +522,53 @@ function parseItems( data ) {
         showHideActivity(false);
         trimPosts();
     }
+}
+function buildHTMLSection( post ) {
+    var show_time = readStorage('show_live_timestamps');
+    var avatarClass = 'avatar-round',
+        account_age = 999,
+        post_time = '';
+    var is_repost = false,
+        repost_by = '';
+    var data = post;
+    var _html = '';
+
+    // Is This a Repost?
+    if ( post.hasOwnProperty('repost_of') ) {
+        data = post.repost_of;
+        repost_by = ' <i style="float: right;">(<i class="fa fa-retweet"></i> ' + post.user.username + ')</i>';
+        is_repost = true;
+    }
+
+    post_time = ( show_time === 'Y' ) ? humanized_time_span(data.created_at) : '<em>more...</em>';
+    account_age = Math.floor(( new Date() - Date.parse(data.user.created_at) ) / 86400000);
+    if ( account_age <= 7 ) { avatarClass = 'avatar-round recent-acct'; }
+    if ( account_age <= 1 ) { avatarClass = 'avatar-round new-acct'; }
+    if ( isMention( data ) ) { avatarClass = 'avatar-round mention'; }
+    _html = '<div id="' + data.id + '-po" class="post-avatar">' +
+                    '<img class="' + avatarClass + '"' +
+                        ' onClick="doShowUser(' + data.user.id + ');"' +
+                        ' src="' + data.user.avatar_image.url + '">' +
+                '</div>' +
+                '<div id="' + data.id + '-dtl" class="post-content" onClick="showHideActions(' + data.id + ', \'[TL]\');">' +
+                    '<h5 class="post-name"><span>' + data.user.username + repost_by + '</span></h5>' +
+                    parseText( data ) +
+                    '<p class="post-time">' +
+                        '<em id="' + data.id + '-time[TL]" name="' + data.id + '-time">' + post_time + '</em>' +
+                    '</p>' +
+                '</div>' +
+                buildRespondBar( data ) +
+                parseEmbedded( data );
+    return _html;
+}
+function buildNode( post_id, tl_ref, html ) {
+    var elem = document.createElement("div");
+    elem.setAttribute('id', post_id + tl_ref);
+    elem.setAttribute('name', post_id);
+    elem.setAttribute('class', 'post-item');
+    elem.innerHTML = html;
+
+    return elem;
 }
 function addPostItem( post_id, created_at, html, is_mention, followed, post_by, post_mentions, post_reposted, post_starred, is_convo, client_name ) {
     if ( !window.posts.hasOwnProperty( post_id ) ) {
@@ -593,6 +617,7 @@ function showHideTL( tl ) {
     }
 }
 function showTimelines() {
+    var buffer = '<div id="0[TL]" class="post-item" style="border: 0; min-height: 75px;"></div>';
     document.getElementById('tl-space').innerHTML = '';
     setSplashMessage('Preparing Timelines');
 
@@ -611,7 +636,9 @@ function showTimelines() {
     for (i in window.timelines) {
         if ( window.timelines.hasOwnProperty(i) ) {
             if ( window.timelines[i] === true ) {
-                $('#tl-space').append( '<div id="' + i + '" class="post-list tl-' + i + '" style="overflow-x: hidden;"></div>' );
+                $('#tl-space').append( '<div id="' + i + '" class="post-list tl-' + i + '" style="overflow-x: hidden;">' +
+                                           buffer.replaceAll('[TL]', '-' + i.charAt(0), '') +
+                                       '</div>' );
             }
         }
     }
@@ -624,7 +651,6 @@ function showMutedPost( post_id, tl ) {
     $('#' + post_id + tl ).replaceWith( window.posts[post_id].html.replaceAll('[TL]', tl, '') );
 }
 function redrawList() {
-    var buffer = '<div class="post-item" style="border: 0; min-height: 75px;"></div>';
     var global_showall = ( readStorage('global_show') === 'e' ) ? true : false;
     if ( window.activate === false ) {
         var _home = readData('home_done'),
@@ -672,77 +698,71 @@ function redrawList() {
 
     /* Draw the Standard Timelines */
     var postText = '';
-    var last_ids = { home: 0,
-                     mentions: 0,
-                     global: 0
-                    };
-    var html_txt = { home: '',
-                     mentions: '',
-                     global: ''
-                    };
+    var last_id = '';
 
     for ( post_id in window.posts ) {
         if ( window.posts[post_id] !== false ) {
             if ( isMutedClient(window.posts[post_id].client) ) {
-                postText = '<div id="' + post_id + '[TL]" name="' + post_id + '" class="post-item"' +
-                               ' onClick="showMutedPost(' + post_id + ', \'[TL]\');">' +
+                postText = '<span onClick="showMutedPost(' + post_id + ', \'[TL]\');">' +
                                '@' + window.posts[post_id].created_by + ' - ' + 'Muted Client (' + window.posts[post_id].client + ')' +
-                           '</div>';
+                           '</span>';
             } else {
                 postText = window.posts[post_id].html;
             }
 
             if ( window.posts[post_id].is_conversation === false ) {
                 if ( window.timelines.home ) {
-                    if ( $('#' + post_id + '-h').length === 0 ) {
+                    if ( checkElementExists(post_id + '-h') === false ) {
                         if ( window.posts[post_id].is_mention || window.posts[post_id].followed ) {
-                            if ( document.getElementById('home').innerHTML === '' ) {
-                                if ( html_txt.home === '' ) { html_txt.home = buffer; }
-                                html_txt.home = (postText.replaceAll('[TL]', '-h', '')) + html_txt.home;
-                            } else {
-                                if ( last_ids.home > 0 ) { $( postText.replaceAll('[TL]', '-h', '') ).insertBefore( '#' + last_ids.home + '-h' ); }
+                            last_id = getPreviousElement(post_id, 'home', '-h');
+                            if ( last_id !== false ) {
+                                document.getElementById('home').insertBefore( buildNode(post_id, '-h', postText.replaceAll('[TL]', '-h', '')),
+                                                                              document.getElementById(last_id) );
                             }
-                            last_ids.home = post_id;
                         }
-                    } else { last_ids.home = post_id; }
+                    }
                 }
-    
+
                 if ( window.timelines.mentions ) {
-                    if ( $('#' + post_id + '-m').length === 0 ) {
+                    if ( checkElementExists(post_id + '-m') === false ) {
                         if ( window.posts[post_id].is_mention ) {
-                            if ( document.getElementById('mentions').innerHTML === '' ) {
-                                if ( html_txt.mentions === '' ) { html_txt.mentions = buffer; }
-                                html_txt.mentions = (postText.replaceAll('[TL]', '-m', '')) + html_txt.mentions;
-                            } else {
-                                if ( last_ids.mentions > 0 ) {
-                                    $( postText.replaceAll('[TL]', '-m', '') ).insertBefore( '#' + last_ids.mentions + '-m' );
-                                }
+                            last_id = getPreviousElement(post_id, 'mentions', '-m');
+                            if ( last_id !== false ) {
+                                document.getElementById('mentions').insertBefore( buildNode(post_id, '-m', postText.replaceAll('[TL]', '-m', '')),
+                                                                                  document.getElementById(last_id) );
                             }
-                            last_ids.mentions = post_id;
                         }
-                    } else { last_ids.mentions = post_id;}
+                    }
                 }
     
                 if ( window.timelines.global ) {
-                    if ( $('#' + post_id + '-g').length === 0 ) {
+                    if ( checkElementExists(post_id + '-g') === false ) {
                         if ( global_showall || window.posts[post_id].followed === false ) {
-                            if ( document.getElementById('global').innerHTML === '' ) {
-                                if ( html_txt.global === '' ) { html_txt.global = buffer; }
-                                html_txt.global = (postText.replaceAll('[TL]', '-g', '')) + html_txt.global;
-                            } else {
-                                if ( last_ids.global > 0 ) { $( postText.replaceAll('[TL]', '-g', '') ).insertBefore( '#' + last_ids.global + '-g' ); }
+                            last_id = getPreviousElement(post_id, 'global', '-g');
+                            if ( last_id !== false ) {
+                                document.getElementById('global').insertBefore( buildNode(post_id, '-g', postText.replaceAll('[TL]', '-g', '')),
+                                                                                document.getElementById(last_id) );
                             }
-                            last_ids.global = post_id;
                         }
-                    } else { last_ids.global = post_id; }
+                    }
                 }
             }
         }
     }
-
-    // Write the HTML If Necessary
-    for ( tline in html_txt ) { if ( html_txt[tline] !== '' ) { document.getElementById(tline).innerHTML = html_txt[tline]; } }
     setWindowConstraints();
+}
+function getPreviousElement( post_id, timeline, tl_ref ) {
+    var elems = document.getElementById(timeline);
+    var c_max = parseInt(readStorage('column_max'));
+    for ( var idx = 0; idx < elems.children.length; idx++ ) {
+        if ( idx >= (c_max - 5) ) { return false; }
+        if ( parseInt(elems.children[idx].id.replaceAll(tl_ref, '', '')) < parseInt(post_id) ) { return elems.children[idx].id; }
+    }
+    return '0' + tl_ref;
+}
+function checkElementExists( div_id ) {
+    var element =  document.getElementById( div_id );
+    if (typeof(element) !== 'undefined' && element !== null) { return true; } else { return false; }
 }
 function setWindowConstraints() {
     var sHeight = window.innerHeight || document.body.clientHeight;

@@ -40,6 +40,7 @@ function readConfigFile( filename ) {
                 for ( var item in data ) { window[item] = data[item]; }
                 continueLoadProcess();
                 setWindowConstraints();
+                return true;
             }
         }
         return false;
@@ -109,7 +110,7 @@ function parseMyToken( data ) {
 function getAuthorisation() {
     var params = { client_id: window.apiToken,
                    response_type: 'token',
-                   redirect_uri: window.redirect,
+                   redirect_uri: window.location.href,
                    scope : 'basic stream write_post follow update_profile public_messages messages files'
                   }
     window.location = buildUrl('https://account.app.net/oauth/authorize', params);
@@ -648,7 +649,10 @@ function showTimelines() {
     }
 }
 function showMutedPost( post_id, tl ) {
-    $('#' + post_id + tl ).replaceWith( window.posts[post_id].html.replaceAll('[TL]', tl, '') );
+    var _html = '<div id="' + post_id + tl + '" name="' + post_id + '" class="post-item">' +
+                    window.posts[post_id].html.replaceAll('[TL]', tl, '') +
+                '</div>';
+    $('#' + post_id + tl ).replaceWith( _html );
 }
 function redrawList() {
     var global_showall = ( readStorage('global_show') === 'e' ) ? true : false;

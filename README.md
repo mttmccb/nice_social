@@ -19,15 +19,15 @@ Using this code really couldn't be easier. Put the files somewhere. Access the `
 
 In order to use this website to interact with the App.Net API, you will need to enter an Application Client ID and a web-safe URI into a `config.json` file. Copy the `config.sample.json` file to `config.json` and customise it to your heart's content. You can [get a Client ID for free with your App.Net account](https://account.app.net/developer/apps/) regardless of whether you have a free, paid, or developer account. Don't worry about the exclamation mark message unless you do not see the "Create App" button.
 
-![Create Application](https://nice.social/themes/mono/img/1_create_app.jpg)
+![Create Application](https://nice.social/gitpics/1_create_app.jpg)
 
 Next you can enter the name and website of your application. If you plan on running these files from your computer, just enter anything into the website field.
 
-![Create Application](https://nice.social/themes/mono/img/2_create_app.jpg)
+![Create Application](https://nice.social/gitpics/2_create_app.jpg)
 
 The third and final screen will give you the necessary `client_id` to interact with App.Net.
 
-![Create Application](https://nice.social/themes/mono/img/3_create_app.jpg)
+![Create Application](https://nice.social/gitpics/3_create_app.jpg)
 
 On this third screen you will also see a place for "Redirect URIs". You will need a good URI in this area before you can log in to App.net. If you are running the web application from a web server, enter the website address here. If you're running it on your computer, you will need to run Apache or some other web server software, and supply the URI. It might look something like `http://localhost:8080/` depending on how the software is configured.
 

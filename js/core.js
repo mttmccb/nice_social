@@ -11,6 +11,33 @@ jQuery.fn.scrollTo = function(elem, speed) {
     }, speed === undefined ? 1000 : speed); 
     return this; 
 };
+function loadConfigFile() {
+    if ( readConfigFile( 'config.json' ) ) { return true; }
+}
+function readConfigFile( filename ) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET",  filename, true);
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.onreadystatechange = function() {
+        if( xhr.readyState == 4 && xhr.status == 200 ) {
+            switch ( xhr.status ) {
+                case 200:
+                    var data = JSON.parse( xhr.responseText );
+                    if ( data ) {
+                        for ( var item in data ) { window[item] = data[item]; }
+                        continueLoadProcess();
+                        setWindowConstraints();
+                        return true;
+                    }
+
+                default:
+                    if ( filename !== 'config.sample.json' ) { return readConfigFile( 'config.sample.json' ); }
+                    return false;
+            }
+        }
+    }
+    xhr.send();
+}
 function continueLoadProcess() {
     if ( prepApp() ) {
         window.setInterval(function(){
@@ -25,27 +52,6 @@ function continueLoadProcess() {
         collectRankSummary();
         getGlobalRecents();
     }
-}
-function loadConfigFile() {
-    if ( readConfigFile( 'config.json' ) ) { return true; } else { return readConfigFile( 'config.sample.json' ); }
-}
-function readConfigFile( filename ) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", filename, true);
-    xhr.setRequestHeader("Content-type", "application/json");
-    xhr.onreadystatechange = function() {
-        if( xhr.readyState == 4 && xhr.status == 200 ) {
-            var data = JSON.parse( xhr.responseText );
-            if ( data ) {
-                for ( var item in data ) { window[item] = data[item]; }
-                continueLoadProcess();
-                setWindowConstraints();
-                return true;
-            }
-        }
-        return false;
-    }
-    xhr.send();
 }
 function setSplashMessage( msg ) {
     if ( msg === undefined || msg === '' ) {

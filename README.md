@@ -9,7 +9,9 @@ As with everything on GitHub, this project is a work in progress and you are wel
 
 Want to see this code in action? Drop it in at directory on your computer or head over to [Nice.Social](https://nice.social).
 
-***Please Note**: This version of the software is slightly different from the one powering the Nice.Social website. That said, any updates to the main site will be reflected here within a matter of hours or less.*
+Want to see some documentation? Visit the Wiki or, if you'd rather have it local, clone the documentation to your computer:
+
+    `git clone https://github.com/matigo/nice_social.wiki.git`
 
 ###Usage
 

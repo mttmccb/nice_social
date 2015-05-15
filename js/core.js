@@ -11,6 +11,33 @@ jQuery.fn.scrollTo = function(elem, speed) {
     }, speed === undefined ? 1000 : speed); 
     return this; 
 };
+function loadConfigFile() {
+    if ( readConfigFile( 'config.json' ) ) { return true; }
+}
+function readConfigFile( filename ) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET",  filename, true);
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.onreadystatechange = function() {
+        if( xhr.readyState == 4 && xhr.status == 200 ) {
+            switch ( xhr.status ) {
+                case 200:
+                    var data = JSON.parse( xhr.responseText );
+                    if ( data ) {
+                        for ( var item in data ) { window[item] = data[item]; }
+                        continueLoadProcess();
+                        setWindowConstraints();
+                        return true;
+                    }
+
+                default:
+                    if ( filename !== 'config.sample.json' ) { return readConfigFile( 'config.sample.json' ); }
+                    return false;
+            }
+        }
+    }
+    xhr.send();
+}
 function continueLoadProcess() {
     if ( prepApp() ) {
         window.setInterval(function(){
@@ -25,26 +52,6 @@ function continueLoadProcess() {
         collectRankSummary();
         getGlobalRecents();
     }
-}
-function loadConfigFile() {
-    if ( readConfigFile( 'config.json' ) ) { return true; } else { return readConfigFile( 'config.sample.json' ); }
-}
-function readConfigFile( filename ) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", filename, true);
-    xhr.setRequestHeader("Content-type", "application/json");
-    xhr.onreadystatechange = function() {
-        if( xhr.readyState == 4 && xhr.status == 200 ) {
-            var data = JSON.parse( xhr.responseText );
-            if ( data ) {
-                for ( var item in data ) { window[item] = data[item]; }
-                continueLoadProcess();
-                setWindowConstraints();
-            }
-        }
-        return false;
-    }
-    xhr.send();
 }
 function setSplashMessage( msg ) {
     if ( msg === undefined || msg === '' ) {
@@ -109,7 +116,7 @@ function parseMyToken( data ) {
 function getAuthorisation() {
     var params = { client_id: window.apiToken,
                    response_type: 'token',
-                   redirect_uri: window.redirect,
+                   redirect_uri: window.location.href,
                    scope : 'basic stream write_post follow update_profile public_messages messages files'
                   }
     window.location = buildUrl('https://account.app.net/oauth/authorize', params);
@@ -648,7 +655,10 @@ function showTimelines() {
     }
 }
 function showMutedPost( post_id, tl ) {
-    $('#' + post_id + tl ).replaceWith( window.posts[post_id].html.replaceAll('[TL]', tl, '') );
+    var _html = '<div id="' + post_id + tl + '" name="' + post_id + '" class="post-item">' +
+                    window.posts[post_id].html.replaceAll('[TL]', tl, '') +
+                '</div>';
+    $('#' + post_id + tl ).replaceWith( _html );
 }
 function redrawList() {
     var global_showall = ( readStorage('global_show') === 'e' ) ? true : false;
